@@ -35,3 +35,7 @@ fn panic(_info: &PanicInfo) -> ! {
 
 // Command line: compiler for the host system with the linker argument
 // cargo rustc -- -C link-args="-e __start -static -nostartfiles"
+
+// no longer find the core library:
+// In core library, Result, Option, and iterators 
+// Linked to all no_std crates 

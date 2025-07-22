@@ -1,0 +1,3 @@
+[unstable]
+build-std = ["core", "compiler_builtins"] 
+# tell cargo that it should recompile the core and compiler_builtins libraries 
