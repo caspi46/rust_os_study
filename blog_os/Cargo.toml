@@ -5,6 +5,7 @@ authors = ["Kenny Kim <caspi4646@gmail.com>"]
 edition = "2024"
 
 [dependencies]
+bootloader = "0.9"
 
 [profile.dev]
 panic = "abort"
