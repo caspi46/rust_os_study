@@ -1,20 +1,23 @@
 
 #![no_std] // disable to use std
 #![no_main]
-
-use core::panic::PanicInfo; 
+#![feature(custom_test_frameworks)] 
+#![test_runner(crate::test_runner)] 
+#![reexport_test_harness_main = " test_main"]
 
 mod vga_buffer; 
+use core::panic::PanicInfo; 
 
 // This function is called on panic 
 // parameter _info : PanicInfo contains: 
 
-static HELLO: &[u8] = b"Hello World!"; 
-
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     println!("Hello, World{}", "!"); 
-    // panic(panic!("Some panic message"));
+
+    #[cfg(test)]
+    test_main(); 
+
     loop {}
 }
 
@@ -24,25 +27,37 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-// A Freestanding Rust Binary by Philipp Oppermann's blog 
 
-// disable the standard library 
-// since  they depends on the operating system features like threads, files, or networking 
-// and includes C standard library libc 
-// => can't use them (OS-Dependant libraries) due to creating our own operating system 
+#[cfg(test)]
+// &[&dyn Fn()] : a slice of trait object references of the Fn() trait
+// => a list of references to types that can be called like a function 
+pub fn test_runner(tests: &[&dyn Fn()]) { 
+    println!("Running {} tests", tests.len()); 
+    for test in tests {
+        test(); 
+    }
+    exit_qemu(QemuExitCode::Success); 
+}
 
+#[test_case]
+fn trivial_assertion() {
+    print!("trivial assertion... "); 
+    assert_eq!(1, 1); 
+    println!("[ok]"); 
+}
 
-// start attribute: 
-// main function = the first function called when you run the program 
-// need to initialize itself before calling main => runtime system
-// runtime system for garbage collection or thread for programming languages 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)] 
+#[repr(u32)] 
+pub enum QemuExitCode {
+	Success = 0x10, 
+	Failed = 0x11, 
+} 
 
-// Linker error
-// Linker : a program that combines the generated code into an executable 
-
-// Command line: compiler for the host system with the linker argument
-// cargo rustc -- -C link-args="-e __start -static -nostartfiles"
-
-// no longer find the core library:
-// In core library, Result, Option, and iterators 
-// Linked to all no_std crates 
+pub fn exit_qemu(exit_code: QemuExitCode) {
+	use x86_64::instructions::port::Port; 
+	
+	unsafe {
+		let mut port = Port::new(0xf4); 
+		port.write(exit_code as u32); 
+	} 
+} 
