@@ -13,6 +13,10 @@ mod serial;
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
+    blog_os::init(); 
+
+    x86_64::instructions::interrupts::int3(); 
+
     #[cfg(test)]
     test_main();
 
