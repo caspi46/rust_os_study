@@ -4,14 +4,16 @@ version = "0.1.0"
 authors = ["Kenny Kim <caspi4646@gmail.com>"]
 edition = "2024"
 
+[[test]]
+name = "stack_overflow"
+harness = false 
+
 [dependencies]
 bootloader = "0.9"
 spin = "0.5.2"
 uart_16550 = "0.2.19"
 volatile = "0.2.7"
 x86_64 = "0.14.13"
-
-
 
 [dependencies.lazy_static]
 version = "1.0"
