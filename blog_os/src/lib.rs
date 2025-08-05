@@ -13,8 +13,10 @@ pub mod interrupts;
 pub mod gdt;
 
 pub fn init() {
-    gdt::init();
-    interrupts::init_idt(); 
+    gdt::init(); // Initialize the GDT 
+    interrupts::init_idt(); // Initialize the IDT 
+    unsafe { interrupts::PICS.lock().initialize()}; // Initialize the PIC 
+    x86_64::instructions::interrupts::enable(); // Enable intterupts 
 }
 
 pub trait Testable {
