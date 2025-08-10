@@ -167,7 +167,11 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().write_fmt(args).unwrap();
+    use x86_64::instructions::interrupts; 
+
+    interrupts::without_interrupts( || { // takes a closure and executes it in an interrupt-free environment 
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 #[test_case]
