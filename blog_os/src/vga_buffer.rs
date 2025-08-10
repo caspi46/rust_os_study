@@ -175,7 +175,7 @@ pub fn _print(args: fmt::Arguments) {
 }
 
 #[test_case]
-fn test_println_simple() {
+fn test_println_simple() { 
     println!("test_println_simple output");
 }
 
@@ -187,7 +187,7 @@ fn test_println_many() {
 }
 
 #[test_case]
-fn test_println_output() {
+fn test_println_output() { // failing b/c the race condition b/t the test and timer handler 
     let s = "Some test string that fits on a single line";
     println!("{}", s);
     for (i, c) in s.chars().enumerate() {
