@@ -18,11 +18,6 @@ pub extern "C" fn _start() -> ! {
     #[cfg(test)]
     test_main();
 
-    loop {
-        use blog_os::print; 
-        print!("-");
-    }
-
     println!("It did not crash!"); 
     blog_os::hlt_loop(); 
 }
