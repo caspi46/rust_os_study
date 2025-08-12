@@ -22,6 +22,9 @@ pub extern "C" fn _start() -> ! {
         use blog_os::print; 
         print!("-");
     }
+
+    println!("It did not crash!"); 
+    blog_os::hlt_loop(); 
 }
 
 #[cfg(not(test))]
