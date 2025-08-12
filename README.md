@@ -5,7 +5,7 @@ This is about writing opearting system in Rust based on Philipp Oppermann's blog
 (8/2/25) 
 The Current version: 
 - added VGA buffers
-- added interrupts: breakpoint, double fault handlers 
+- added interrupts: breakpoint, double fault handlers, timer interrupt, keyboard interrupt
 
 
 Current Rust Version: 
@@ -16,8 +16,12 @@ Current Rust Version:
 - uart_16550: "0.2.19"
 - volatile: "0.2.7"
 
+Timer Interrupt Handler (Done)
 
 WIP: Hardware Interrupts
 - Currently added hlt instruction to let the CPU work efficiently since the prev version runs at full speed (spin endlessly) always.
 - HLT instruction: It allows the CPU to enter the sleep state (less energy)
 - From the prev version, I replaced the enless `loop { }` to the `hlt_loop` which incudes the hlt instruction
+
+Keyboard Interrupt Handler (WIP): 
+- Able to find which key was pressed by scancodes
