@@ -15,4 +15,9 @@ Current Rust Version:
 - bootloader: "0.9"
 - uart_16550: "0.2.19"
 - volatile: "0.2.7"
-  
+
+
+WIP: Hardware Interrupts
+- Currently added hlt instruction to let the CPU work efficiently since the prev version runs at full speed (spin endlessly) always.
+- HLT instruction: It allows the CPU to enter the sleep state (less energy)
+- From the prev version, I replaced the enless `loop { }` to the `hlt_loop` which incudes the hlt instruction
