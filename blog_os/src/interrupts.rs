@@ -41,10 +41,12 @@ pub fn init_idt() {
     IDT.load();
 }
 
+// Exception Handler: Breakpoint Handler
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
     println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame); 
 }
 
+// Exception Handler: Double Fault Handler
 extern "x86-interrupt" fn double_fault_handler(
     stack_frame: InterruptStackFrame,
     _error_code: u64,
@@ -52,6 +54,7 @@ extern "x86-interrupt" fn double_fault_handler(
     panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
 }
 
+// HW Interrupt Handlers: Timer Interrupt Handler
 extern "x86-interrupt" fn timer_interrupt_handler(
     _stack_frame: InterruptStackFrame, 
 ) {
@@ -63,6 +66,7 @@ extern "x86-interrupt" fn timer_interrupt_handler(
     }
 }
 
+// HW Interrupt Handlers: Keyboard Interrupt Handler
 extern "x86-interrupt" fn keyboard_interrupt_handler(
     _stack_frame: InterruptStackFrame
 ) {
