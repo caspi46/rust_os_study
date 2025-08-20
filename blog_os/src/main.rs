@@ -8,18 +8,22 @@ use blog_os::println;
 use core::panic::PanicInfo;
 mod serial;
 
-
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
     println!("Hello World{}", "!");
 
-    blog_os::init(); 
+    blog_os::init();
+
+    let ptr = 0xdeadbeaf as *mut u8;
+    unsafe {
+        *ptr = 42;
+    }
 
     #[cfg(test)]
     test_main();
 
-    println!("It did not crash!"); 
-    blog_os::hlt_loop(); 
+    println!("It did not crash!");
+    blog_os::hlt_loop();
 }
 
 #[cfg(not(test))]
@@ -37,7 +41,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[test_case]
 fn trivial_assertion() {
-    serial_print!("trivial assertion... "); 
+    serial_print!("trivial assertion... ");
     assert_eq!(1, 1);
-    serial_println!("[ok]"); 
+    serial_println!("[ok]");
 }
