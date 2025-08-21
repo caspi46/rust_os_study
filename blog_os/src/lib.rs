@@ -7,15 +7,16 @@
 
 use core::panic::PanicInfo;
 
+pub mod gdt;
+pub mod interrupts;
+pub mod memory;
 pub mod serial;
 pub mod vga_buffer;
-pub mod interrupts; 
-pub mod gdt;
 
 pub fn init() {
     gdt::init(); // Initialize the GDT 
     interrupts::init_idt(); // Initialize the IDT 
-    unsafe { interrupts::PICS.lock().initialize()}; // Initialize the PIC 
+    unsafe { interrupts::PICS.lock().initialize() }; // Initialize the PIC 
     x86_64::instructions::interrupts::enable(); // Enable intterupts 
 }
 
@@ -71,17 +72,21 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
     }
 }
 
-/// Entry point for `cargo xtest`
-#[cfg(test)]
-#[unsafe(no_mangle)]
-pub extern "C" fn _start() -> ! {
-    init();
-    test_main();
-    hlt_loop();
-}
-
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
+}
+
+#[cfg(test)]
+use bootloader::{BootInfo, entry_point};
+
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    init();
+    test_main();
+    hlt_loop();
 }
