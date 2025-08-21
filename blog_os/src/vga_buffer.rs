@@ -1,3 +1,7 @@
+// This is vga_buffer.rs
+// Able to display the characters (the VGA text buffer)
+// So, with serial printing, it ables to display the text in the qemu screen
+
 use core::fmt;
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -167,15 +171,16 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     use core::fmt::Write;
-    use x86_64::instructions::interrupts; 
+    use x86_64::instructions::interrupts;
 
-    interrupts::without_interrupts( || { // takes a closure and executes it in an interrupt-free environment 
+    interrupts::without_interrupts(|| {
+        // takes a closure and executes it in an interrupt-free environment
         WRITER.lock().write_fmt(args).unwrap();
     });
 }
 
 #[test_case]
-fn test_println_simple() { 
+fn test_println_simple() {
     println!("test_println_simple output");
 }
 
@@ -187,14 +192,15 @@ fn test_println_many() {
 }
 
 #[test_case]
-fn test_println_output() { // failing b/c the race condition b/t the test and timer handler (Solved)
+fn test_println_output() {
+    // failing b/c the race condition b/t the test and timer handler (Solved)
     use core::fmt::Write;
     use x86_64::instructions::interrupts;
 
     let s = "Some test string that fits on a single line";
     interrupts::without_interrupts(|| {
         let mut writer = WRITER.lock();
-        writeln!(writer, "\n{}", s).expect("writeln failed"); 
+        writeln!(writer, "\n{}", s).expect("writeln failed");
         println!("{}", s);
         for (i, c) in s.chars().enumerate() {
             let screen_char = writer.buffer.chars[BUFFER_HEIGHT - 2][i].read();

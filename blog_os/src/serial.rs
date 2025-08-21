@@ -1,4 +1,6 @@
-
+// This is serial.rs
+// sends the output to the port
+// prints the text in the qemu screen
 use lazy_static::lazy_static;
 use spin::Mutex;
 use uart_16550::SerialPort;
@@ -14,7 +16,7 @@ lazy_static! {
 #[doc(hidden)]
 pub fn _print(args: ::core::fmt::Arguments) {
     use core::fmt::Write;
-    use x86_64::instructions::interrupts; 
+    use x86_64::instructions::interrupts;
 
     interrupts::without_interrupts(|| {
         SERIAL1
