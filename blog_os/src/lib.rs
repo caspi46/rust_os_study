@@ -1,3 +1,6 @@
+// Library
+// GDT, Intterupts, Memory, Serial, and Vga_Buffer
+
 #![no_std]
 #![cfg_attr(test, no_main)]
 #![feature(custom_test_frameworks)]
@@ -13,6 +16,7 @@ pub mod memory;
 pub mod serial;
 pub mod vga_buffer;
 
+// initilization: gdt, interrupts, PICS
 pub fn init() {
     gdt::init(); // Initialize the GDT 
     interrupts::init_idt(); // Initialize the IDT 
@@ -20,12 +24,33 @@ pub fn init() {
     x86_64::instructions::interrupts::enable(); // Enable intterupts 
 }
 
+// hlt_loop:
+// difference with loop:
+// halt until the next interrupt! => more efficient!
 pub fn hlt_loop() -> ! {
     loop {
-        x86_64::instructions::hlt();
+        x86_64::instructions::hlt(); // halt until the next interrupt
     }
 }
 
+// Exit Qemu
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum QemuExitCode {
+    Success = 0x10,
+    Failed = 0x11,
+}
+
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
+}
+
+// Test-related
 pub trait Testable {
     fn run(&self) -> ();
 }
@@ -56,28 +81,14 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     hlt_loop();
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u32)]
-pub enum QemuExitCode {
-    Success = 0x10,
-    Failed = 0x11,
-}
-
-pub fn exit_qemu(exit_code: QemuExitCode) {
-    use x86_64::instructions::port::Port;
-
-    unsafe {
-        let mut port = Port::new(0xf4);
-        port.write(exit_code as u32);
-    }
-}
-
+// test panic handler
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
 }
 
+// test kernel main
 #[cfg(test)]
 use bootloader::{BootInfo, entry_point};
 

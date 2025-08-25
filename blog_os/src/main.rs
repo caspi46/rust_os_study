@@ -14,7 +14,7 @@ entry_point!(kernel_main);
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Hello World{}", "!");
 
-    blog_os::init();
+    blog_os::init(); // initialization: GDT, interrupts, PICS
 
     use blog_os::memory::active_level_4_table;
     use x86_64::VirtAddr;
