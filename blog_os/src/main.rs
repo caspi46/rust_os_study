@@ -9,6 +9,7 @@ use bootloader::{BootInfo, entry_point};
 use core::panic::PanicInfo;
 mod serial;
 
+// provides a type-checked way to define a Rust function as the entry point
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
