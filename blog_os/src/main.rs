@@ -17,30 +17,34 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     blog_os::init(); // initialization: GDT, interrupts, PICS
 
-    use blog_os::memory::active_level_4_table;
-    use x86_64::VirtAddr;
+    use blog_os::memory;
+    use x86_64::{VirtAddr, structures::paging::Page};
 
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
+    let mut mapper = unsafe { memory::init(phys_mem_offset) };
+    // let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator =
+        unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    for (i, entry) in l4_table.iter().enumerate() {
-        use x86_64::structures::paging::PageTable;
+    let page = Page::containing_address(VirtAddr::new(0));
+    memory::crate_example_mapping(page, &mut mapper, &mut frame_allocator);
 
-        if !entry.is_unused() {
-            println!("L4 Entry {}: {:?}", i, entry);
-        }
+    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
+    unsafe { page_ptr.offset(400).write_volatile(0xf021_f077_f065_f04e) };
 
-        let phys = entry.frame().unwrap().start_address();
-        let virt = phys.as_u64() + boot_info.physical_memory_offset;
-        let ptr = VirtAddr::new(virt).as_mut_ptr();
-        let l3_table: &PageTable = unsafe { &*ptr };
+    // // test case for memory access:
+    // let addresses = [
+    //     0xb8000,
+    //     0x201008,
+    //     0x0100_0020_1a10,
+    //     boot_info.physical_memory_offset,
+    // ];
 
-        for (i, entry) in l3_table.iter().enumerate() {
-            if !entry.is_unused() {
-                println!(" L3 Entry {}: {:?}", i, entry);
-            }
-        }
-    }
+    // for &address in &addresses {
+    //     let virt = VirtAddr::new(address);
+    //     let phys = mapper.translate_addr(virt);
+    //     println!("{:?} -> {:?}", virt, phys);
+    // }
 
     #[cfg(test)]
     test_main();
